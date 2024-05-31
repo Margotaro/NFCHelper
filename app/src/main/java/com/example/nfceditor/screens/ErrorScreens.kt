@@ -1,5 +1,5 @@
-import android.app.Activity
-import android.nfc.NfcAdapter
+package com.example.nfceditor.screens
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,13 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nfceditor.NFCMessageViewModel
-import com.example.nfceditor.ProceedToMainMenu
-import com.example.nfceditor.model.NFCFactory
+import com.example.nfceditor.viewmodels.NFCMessageViewModel
+import com.example.nfceditor.model.NFCProxy
 import com.example.nfceditor.tools.NFCState
-import com.example.nfceditor.tools.NFCStateChecker
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,20 +44,17 @@ fun ShowError(message: String = "") {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ShowRefreshableError(message: String = "") {
+fun ShowRefreshableError(message: String = "", nfc: NFCProxy) {
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
     var isNfcAvailable by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
-    val viewModel: NFCMessageViewModel = viewModel()
 
     fun refresh() = refreshScope.launch {
-        viewModel.nfcFactory?.let { nfcFactory ->
-            refreshing = true
-            nfcFactory.updateNFCState()
-            isNfcAvailable = nfcFactory.state == NFCState.Enabled
-            refreshing = false
-        }
+        refreshing = true
+        nfc.updateNFCState()
+        isNfcAvailable = nfc.state == NFCState.Enabled
+        refreshing = false
     }
 
     val state = rememberPullRefreshState(refreshing, ::refresh)
